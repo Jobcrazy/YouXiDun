@@ -2,7 +2,7 @@
 
 [中文](./ReadMe.md)
 
-This project demonstrates how to integrate and initialize the NetGuard Shield SDK in a native Android application and how to verify the local service started by NetGuard through a TCP connection on the same device.
+This project demonstrates how to integrate and initialize the NetGuard SDK in a native Android application and how to verify the local service started by NetGuard through a TCP connection on the same device.
 
 ## Quick start
 
@@ -62,9 +62,9 @@ import com.udptcp.netguard.Shield;
 int result = Shield.Init(null, "your-app-id");
 ```
 
-A return value of `0` means initialization succeeded. Do not hard-code a production AppId in a released client; fetch it from your application backend after authentication.
+A return value of `0` means initialization succeeded.
 
-The current project packages `armeabi-v7a` and `arm64-v8a` and supports Android API 19 or later.
+The current project packages `armeabi-v7a` and `arm64-v8a`.
 
 ## TCP protocol
 
@@ -81,4 +81,3 @@ The maximum complete frame size is 16 KiB. After connecting, the client sends on
 ```
 
 The connection timeout is five seconds. The client closes its socket and background workers after a protocol error, send failure, or remote disconnection.
-

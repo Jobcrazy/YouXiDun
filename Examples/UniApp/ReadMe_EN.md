@@ -2,7 +2,7 @@
 
 [中文](./ReadMe.md)
 
-This project demonstrates how to integrate and initialize the NetGuard Shield SDK in uni-app x and how to verify the local service started by NetGuard through a TCP connection on the same device.
+This project demonstrates how to integrate and initialize the NetGuard SDK in uni-app x and how to verify the local service started by NetGuard through a TCP connection on the same device.
 
 ## Quick start
 

@@ -2,7 +2,7 @@
 
 [English](./ReadMe_EN.md)
 
-本项目演示如何在 uni-app x 中集成并初始化 NetGuard Shield SDK，以及如何通过设备本机 TCP 连接验证 NetGuard 启动的服务。
+本项目演示如何在 uni-app x 中集成并初始化 NetGuard SDK，以及如何通过设备本机 TCP 连接验证 NetGuard 启动的服务。
 
 ## 快速开始
 

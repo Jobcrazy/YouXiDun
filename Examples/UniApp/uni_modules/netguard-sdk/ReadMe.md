@@ -2,7 +2,7 @@
 
 [English](./ReadMe_EN.md)
 
-本插件用于演示如何在 uni-app / uni-app x 项目中初始化 NetGuard Shield SDK，同时支持 Android 和 iOS。
+本插件用于演示如何在 uni-app / uni-app x 项目中初始化 NetGuard SDK，同时支持 Android 和 iOS。
 
 ## 1. 引入并初始化
 
@@ -12,7 +12,7 @@
 import { Init } from '@/uni_modules/netguard-sdk'
 ```
 
-在页面加载或应用启动时传入从业务后台获取的 AppId：
+在页面加载或应用启动时传入 AppId：
 
 ```uts
 const result = Init('your-app-id')
@@ -24,16 +24,14 @@ if (result == 0) {
 }
 ```
 
-示例项目在 `pages/index/index.uvue` 的 `onLoad` 中初始化 SDK。正式 AppId 不应硬编码在发布的客户端中，建议登录后从业务后台获取。
+示例项目在 `pages/index/index.uvue` 的 `onLoad` 中初始化 SDK。
 
 ## 2. 平台要求
 
-- Android 最低版本由 `utssdk/app-android/config.json` 声明。
-- iOS 最低版本为 iOS 12.0。
 - Android 使用 `utssdk/app-android/libs/libshield.aar`。
 - iOS 使用 `utssdk/app-ios/Libs/libshield.a` 和 `Shield.h`。
 
-更换 Shield SDK 二进制文件时，应确认原生类名、头文件接口、支持架构和最低系统版本保持兼容。
+更换 Shield SDK 二进制文件时，应确认原生类名、头文件接口和支持架构保持兼容。
 
 ## 3. 项目结构
 

@@ -2,7 +2,7 @@
 
 [English](./ReadMe_EN.md)
 
-本项目演示如何在 Android 原生应用中集成并初始化 NetGuard Shield SDK，以及如何通过设备本机 TCP 连接验证 NetGuard 启动的服务。
+本项目演示如何在 Android 原生应用中集成并初始化 NetGuard SDK，以及如何通过设备本机 TCP 连接验证 NetGuard 启动的服务。
 
 ## 快速开始
 
@@ -62,9 +62,9 @@ import com.udptcp.netguard.Shield;
 int result = Shield.Init(null, "your-app-id");
 ```
 
-返回值 `0` 表示初始化成功。生产应用不应硬编码生产 AppId，建议在用户认证后从应用后端获取。
+返回值 `0` 表示初始化成功。
 
-当前工程打包 `armeabi-v7a` 和 `arm64-v8a`，最低支持 Android API 19。
+当前工程打包 `armeabi-v7a` 和 `arm64-v8a`。
 
 ## TCP 协议
 
@@ -81,4 +81,3 @@ int result = Shield.Init(null, "your-app-id");
 ```
 
 连接超时为 5 秒。协议错误、发送失败或远端断开时，客户端会关闭 Socket 和后台线程。
-

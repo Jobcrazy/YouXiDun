@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements TcpClient.Listene
         btnDisconnect.setOnClickListener(v -> disconnect());
         applyDisconnectedState("Not connected");
 
-        // Fetch the AppId from the application backend in production.
         int iRet = Shield.Init(null, "ac7f95bb-1e4d-4186-8e01-e6334462a608");
         if (iRet == 0) appendLog("SDK initialized successfully", LogAdapter.TYPE_INFO);
         else appendLog(String.format(

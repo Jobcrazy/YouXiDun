@@ -2,7 +2,7 @@
 
 [中文](./ReadMe.md)
 
-This plugin demonstrates how to initialize the NetGuard Shield SDK in a uni-app or uni-app x application. Both Android and iOS are supported.
+This plugin demonstrates how to initialize the NetGuard SDK in a uni-app or uni-app x application. Both Android and iOS are supported.
 
 ## 1. Import and initialize
 
@@ -12,7 +12,7 @@ Import `Init` from the plugin root:
 import { Init } from '@/uni_modules/netguard-sdk'
 ```
 
-Call it during page loading or application startup with the AppId obtained from your backend:
+Call it during page loading or application startup with your AppId:
 
 ```uts
 const result = Init('your-app-id')
@@ -24,16 +24,14 @@ if (result == 0) {
 }
 ```
 
-The demo initializes the SDK in `pages/index/index.uvue`. Do not hard-code a production AppId in a released client. Fetch it from your application backend after authentication.
+The demo initializes the SDK in `pages/index/index.uvue`.
 
 ## 2. Platform requirements
 
-- The Android minimum version is declared in `utssdk/app-android/config.json`.
-- The minimum iOS version is iOS 12.0.
 - Android uses `utssdk/app-android/libs/libshield.aar`.
 - iOS uses `utssdk/app-ios/Libs/libshield.a` and `Shield.h`.
 
-When replacing the Shield SDK binaries, verify that the native class names, header API, supported architectures, and minimum OS versions remain compatible.
+When replacing the Shield SDK binaries, verify that the native class names, header API, and supported architectures remain compatible.
 
 ## 3. Project structure
 

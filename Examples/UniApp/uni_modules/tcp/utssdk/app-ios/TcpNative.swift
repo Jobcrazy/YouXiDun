@@ -42,8 +42,8 @@ public final class TcpNative {
                     case .failed(let error):
                         finish(error.localizedDescription)
                     case .waiting(let error):
-                        // 本示例连接设备本机服务，不需要等待网络环境恢复。
-                        // 立即失败可避免页面长期停留在“连接中”。
+                        // This demo connects to a service on the same device, so it
+                        // fails immediately instead of waiting for network recovery.
                         finish(error.localizedDescription)
                     case .cancelled:
                         break

@@ -1,3 +1,3 @@
-/** 初始化 NetGuard Shield SDK。 */
+/** Initializes the NetGuard Shield SDK. */
 export type InitFunc = (appId : string) => number
 export declare const Init : InitFunc

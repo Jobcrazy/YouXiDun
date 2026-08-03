@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="4dp"
+    android:paddingHorizontal="2dp">
+
+    <!-- Event color indicator -->
+    <View
+        android:id="@+id/view_indicator"
+        android:layout_width="3dp"
+        android:layout_height="match_parent"
+        android:minHeight="16dp"
+        android:layout_marginEnd="8dp"
+        android:background="#4FC3F7" />
+
+    <!-- Timestamp -->
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:fontFamily="monospace"
+        android:textColor="#78909C"
+        android:layout_marginEnd="8dp"
+        android:minWidth="88dp" />
+
+    <!-- Log message -->
+    <TextView
+        android:id="@+id/tv_msg"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="12sp"
+        android:fontFamily="monospace"
+        android:textColor="#C9D1D9"
+        android:singleLine="true"
+        android:ellipsize="end" />
+
+</LinearLayout>

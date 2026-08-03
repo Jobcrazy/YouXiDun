@@ -37,7 +37,7 @@
 </script>
 
 <style>
-	/*每个页面公共css */
+	/* Shared styles for every page. */
 	.uni-row {
 		flex-direction: row;
 	}

@@ -24,8 +24,9 @@ type TcpCallbacks = {
 const MAX_PACKET_SIZE = 16 * 1024
 
 /**
- * 与 Android 示例相同的 TCP 客户端：4 字节小端长度头 + UTF-8 payload。
- * 连接后每秒发送一个 ping，并在独立线程持续接收服务端消息。
+ * TCP client matching the native Android demo: a 4-byte little-endian length
+ * header followed by a UTF-8 payload. Sends one ping per second after connecting
+ * and continuously receives server messages on a dedicated worker.
  */
 class TcpClient {
 	private host : string

@@ -1,0 +1,31 @@
+{
+	"id": "tcp",
+	"displayName": "TCP Client",
+	"version": "1.0.0",
+	"description": "Android 与 iOS 跨平台 TCP 客户端",
+	"keywords": ["tcp", "socket", "uts"],
+	"engines": {
+		"HBuilderX": "^4.25",
+		"uni-app": "^3.1.0",
+		"uni-app-x": "^3.1.0"
+	},
+	"dcloudext": {
+		"type": "uts",
+		"sale": {
+			"regular": { "price": "0.00" },
+			"sourcecode": { "price": "0.00" }
+		},
+		"contact": { "qq": "" },
+		"declaration": { "ads": "", "data": "", "permissions": "网络访问" }
+	},
+	"uni_modules": {
+		"dependencies": [],
+		"encrypt": [],
+		"platforms": {
+			"client": {
+				"uni-app": { "app": { "android": "y", "ios": "y" } },
+				"uni-app-x": { "app": { "android": "y", "ios": "y" } }
+			}
+		}
+	}
+}

@@ -1,0 +1,6 @@
+import Shield from "com.udptcp.netguard.Shield"
+import { InitFunc } from "../interface.uts"
+
+export const Init : InitFunc = function (appId : string) : number {
+	return Shield.Init(null, appId)
+}

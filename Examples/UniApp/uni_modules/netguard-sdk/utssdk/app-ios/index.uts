@@ -1,0 +1,6 @@
+import { Shield } from "Shield"
+import { InitFunc } from "../interface.uts"
+
+export const Init : InitFunc = function (appId : string) : number {
+	return Shield.getInstance().Init(null as string | null, appId)
+}

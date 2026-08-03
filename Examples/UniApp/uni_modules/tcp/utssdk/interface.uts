@@ -1,0 +1,10 @@
+export type TcpEventType = 'connected' | 'disconnected' | 'sent' | 'received' | 'error'
+export type TcpEvent = { type : TcpEventType, message : string }
+export type TcpConnectOptions = {
+	host : string
+	port : number
+	event : (event : TcpEvent) => void
+}
+
+export declare function connectTcp(options : TcpConnectOptions) : void
+export declare function disconnectTcp() : void

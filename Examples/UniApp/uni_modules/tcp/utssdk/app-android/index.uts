@@ -1,0 +1,194 @@
+import Socket from "java.net.Socket"
+import InputStream from "java.io.InputStream"
+import OutputStream from "java.io.OutputStream"
+import IOException from "java.io.IOException"
+import ByteBuffer from "java.nio.ByteBuffer"
+import ByteOrder from "java.nio.ByteOrder"
+import StandardCharsets from "java.nio.charset.StandardCharsets"
+import Executors from "java.util.concurrent.Executors"
+import ExecutorService from "java.util.concurrent.ExecutorService"
+import AtomicBoolean from "java.util.concurrent.atomic.AtomicBoolean"
+import AtomicLong from "java.util.concurrent.atomic.AtomicLong"
+import Handler from "android.os.Handler"
+import Looper from "android.os.Looper"
+import { TcpConnectOptions, TcpEventType } from "../interface.uts"
+
+type TcpCallbacks = {
+	onConnected : () => void
+	onDisconnected : (reason : string) => void
+	onSent : (json : string) => void
+	onReceived : (json : string) => void
+	onError : (message : string) => void
+}
+
+const MAX_PACKET_SIZE = 16 * 1024
+
+/**
+ * 与 Android 示例相同的 TCP 客户端：4 字节小端长度头 + UTF-8 payload。
+ * 连接后每秒发送一个 ping，并在独立线程持续接收服务端消息。
+ */
+class TcpClient {
+	private host : string
+	private port : Int
+	private callbacks : TcpCallbacks
+	private socket : Socket | null = null
+	private input : InputStream | null = null
+	private output : OutputStream | null = null
+	private running : AtomicBoolean = new AtomicBoolean(false)
+	private sequence : AtomicLong = new AtomicLong(0)
+	private executor : ExecutorService = Executors.newFixedThreadPool(2)
+
+	constructor(host : string, port : Int, callbacks : TcpCallbacks) {
+		this.host = host
+		this.port = port
+		this.callbacks = callbacks
+	}
+
+	start() : void {
+		this.executor.execute(() => {
+			this.connectAndRun()
+		})
+	}
+
+	stop() : void {
+		this.running.set(false)
+		this.closeSocket()
+		this.executor.shutdownNow()
+	}
+
+	private connectAndRun() : void {
+		try {
+			const socket = new Socket(this.host, this.port)
+			this.socket = socket
+			this.input = socket.getInputStream()
+			this.output = socket.getOutputStream()
+			this.running.set(true)
+			this.callbacks.onConnected()
+
+			this.executor.execute(() => {
+				this.receiveLoop()
+			})
+			this.sendLoop()
+		} catch (error : Exception) {
+			this.running.set(false)
+			this.callbacks.onDisconnected(this.errorMessage(error))
+			this.closeSocket()
+		}
+	}
+
+	private sendLoop() : void {
+		while (this.running.get()) {
+			try {
+				const packet = {
+					cmd: "ping",
+					id: this.sequence.getAndIncrement(),
+					time: this.currentTime()
+				}
+				const json = JSON.stringify(packet)
+				this.writeFrame(json)
+				this.callbacks.onSent(json)
+				Thread.sleep(1000)
+			} catch (error : Exception) {
+				if (this.running.get()) {
+					this.callbacks.onError("发送失败: " + this.errorMessage(error))
+				}
+				this.running.set(false)
+				this.closeSocket()
+				break
+			}
+		}
+	}
+
+	private receiveLoop() : void {
+		const lengthBytes = ByteArray(4)
+		while (this.running.get()) {
+			try {
+				const stream = this.input
+				if (stream == null) throw new IOException("输入流未建立")
+				this.readFully(stream, lengthBytes, 4)
+				const length = ByteBuffer.wrap(lengthBytes).order(ByteOrder.LITTLE_ENDIAN).getInt()
+				if (length <= 0 || length > MAX_PACKET_SIZE) {
+					throw new IOException("非法包长度: " + length)
+				}
+				const payload = ByteArray(length)
+				this.readFully(stream, payload, length)
+				const json = new String(payload, StandardCharsets.UTF_8)
+				this.callbacks.onReceived(json)
+			} catch (error : Exception) {
+				if (this.running.get()) {
+					this.callbacks.onDisconnected(this.errorMessage(error))
+				}
+				this.running.set(false)
+				this.closeSocket()
+				break
+			}
+		}
+	}
+
+	private writeFrame(text : string) : void {
+		const payload = text.toByteArray(StandardCharsets.UTF_8)
+		if (payload.size + 4 > MAX_PACKET_SIZE) throw new IOException("数据包过大")
+		const frame = ByteArray(payload.size + 4)
+		ByteBuffer.wrap(frame).order(ByteOrder.LITTLE_ENDIAN).putInt(payload.size.toInt())
+		System.arraycopy(payload, 0, frame, 4, payload.size.toInt())
+		const stream = this.output
+		if (stream == null) throw new IOException("输出流未建立")
+		stream.write(frame)
+		stream.flush()
+	}
+
+	private readFully(stream : InputStream, buffer : ByteArray, length : Int) : void {
+		let offset : Int = 0
+		while (offset < length) {
+			const count = stream.read(buffer, offset, length - offset)
+			if (count < 0) throw new IOException("连接已关闭")
+			offset += count
+		}
+	}
+
+	private currentTime() : string {
+		const date = new Date()
+		const pad = (value : number, width : number) : string => value.toString().padStart(width, "0")
+		return pad(date.getHours(), 2) + ":" + pad(date.getMinutes(), 2) + ":" +
+			pad(date.getSeconds(), 2) + "." + pad(date.getMilliseconds(), 3)
+	}
+
+	private errorMessage(error : Exception) : string {
+		const message : string | null = error.message
+		return message == null ? "未知错误" : message
+	}
+
+	private closeSocket() : void {
+		try {
+			this.socket?.close()
+		} catch (_ : Exception) {}
+		this.socket = null
+		this.input = null
+		this.output = null
+	}
+}
+
+let activeClient : TcpClient | null = null
+
+@UTSJS.keepAlive
+export function connectTcp(options : TcpConnectOptions) : void {
+	activeClient?.stop()
+	const mainHandler = new Handler(Looper.getMainLooper())
+	const emit = (type : string, message : string) : void => {
+		mainHandler.post(() => options.event({ type: type as TcpEventType, message }))
+	}
+	const callbacks : TcpCallbacks = {
+		onConnected: () => emit('connected', ''),
+		onDisconnected: (reason : string) => emit('disconnected', reason),
+		onSent: (json : string) => emit('sent', json),
+		onReceived: (json : string) => emit('received', json),
+		onError: (message : string) => emit('error', message)
+	}
+	activeClient = new TcpClient(options.host, options.port.toInt(), callbacks)
+	activeClient?.start()
+}
+
+export function disconnectTcp() : void {
+	activeClient?.stop()
+	activeClient = null
+}

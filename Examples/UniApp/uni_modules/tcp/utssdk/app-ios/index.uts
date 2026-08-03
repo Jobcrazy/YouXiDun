@@ -1,0 +1,12 @@
+import { TcpConnectOptions, TcpEventType } from "../interface.uts"
+
+@UTSJS.keepAlive
+export function connectTcp(options : TcpConnectOptions) : void {
+	TcpNative.start(options.host, options.port.toInt(), (type : string, message : string) : void => {
+		options.event({ type: type as TcpEventType, message })
+	})
+}
+
+export function disconnectTcp() : void {
+	TcpNative.stop()
+}

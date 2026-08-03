@@ -1,0 +1,153 @@
+<template>
+	<scroll-view class="page" scroll-y="true">
+		<view class="header">
+			<text class="header-title">Demo TCP Server</text>
+			<view class="status-row">
+				<view :class="connected ? 'status-dot status-on' : 'status-dot status-off'"></view>
+				<text :class="connected ? 'status-text status-text-on' : 'status-text'">{{ status }}</text>
+			</view>
+		</view>
+
+		<view class="card">
+			<text class="label">Server IP</text>
+			<view class="input fixed-value"><text class="fixed-value-text">127.0.0.1</text></view>
+			<text class="label label-gap">Server Port</text>
+			<view class="input fixed-value"><text class="fixed-value-text">10000</text></view>
+
+			<button v-if="!connected" class="button connect-button" :disabled="busy" @click="connect">
+				{{ busy ? 'Connecting…' : 'Connect' }}
+			</button>
+			<button v-else class="button disconnect-button" @click="disconnect">Disconnect</button>
+		</view>
+
+		<view class="log-header">
+			<text class="log-title">Communication Log</text>
+			<text class="clear" @click="clearLogs">Clear</text>
+		</view>
+		<scroll-view class="log-panel" scroll-y="true" :scroll-into-view="lastLogId">
+			<view v-if="logs.length == 0" class="empty"><text class="empty-text">No logs available</text></view>
+			<view v-for="item in logs" :key="item.id" :id="'log-' + item.id" class="log-item">
+				<text class="log-time">{{ item.time }}</text>
+				<text :class="'log-message log-' + item.type">{{ item.message }}</text>
+			</view>
+		</scroll-view>
+	</scroll-view>
+</template>
+
+<script lang="uts">
+	import { Init } from "@/uni_modules/netguard-sdk"
+	import { connectTcp, disconnectTcp, TcpEvent } from "@/uni_modules/tcp"
+
+	type LogItem = { id : number, time : string, message : string, type : string }
+
+	export default {
+		data() {
+			return {
+				status: 'Not connected',
+				connected: false,
+				busy: false,
+				logs: [] as LogItem[],
+				logSequence: 0,
+				lastLogId: '',
+			}
+		},
+		onLoad() {
+			const result = Init('ac7f95bb-1e4d-4186-8e01-e6334462a608')
+			this.appendLog(result == 0 ? 'SDK initialized successfully' : 'SDK failed to initialize: ' + result, result == 0 ? 'info' : 'error')
+		},
+		onUnload() {
+			this.closeClient(false)
+		},
+		methods: {
+			connect() {
+				const address = '127.0.0.1'
+				const serverPort = 10000
+				this.busy = true
+				this.status = 'Connecting…'
+				this.appendLog('Connecting to ' + address + ':' + serverPort, 'info')
+
+				connectTcp({
+					host: address,
+					port: serverPort,
+					event: (event : TcpEvent) => {
+						if (event.type == 'connected') {
+						this.busy = false
+						this.connected = true
+						this.status = 'Connected'
+						this.appendLog('Connected successfully', 'success')
+						} else if (event.type == 'disconnected') {
+							this.setDisconnected('Disconnected')
+							this.appendLog('Disconnect: ' + event.message, 'error')
+						} else if (event.type == 'sent') {
+							this.appendLog('↑ ' + event.message, 'ping')
+						} else if (event.type == 'received') {
+							this.appendLog('↓ ' + event.message, 'pong')
+						} else {
+							this.appendLog(event.message, 'error')
+						}
+					}
+				})
+			},
+			disconnect() {
+				this.closeClient(true)
+			},
+			closeClient(showLog : boolean) {
+				disconnectTcp()
+				this.setDisconnected('Not Connected')
+				if (showLog) this.appendLog('Disconnected manually', 'info')
+			},
+			setDisconnected(text : string) {
+				this.busy = false
+				this.connected = false
+				this.status = text
+			},
+			appendLog(message : string, type : string) {
+				this.logSequence++
+				const now = new Date()
+				const time = now.toLocaleTimeString()
+				this.logs.push({ id: this.logSequence, time, message, type } as LogItem)
+				if (this.logs.length > 300) this.logs.shift()
+				this.lastLogId = 'log-' + this.logSequence
+			},
+			clearLogs() {
+				this.logs = [] as LogItem[]
+				this.lastLogId = ''
+			}
+		}
+	}
+</script>
+
+<style>
+	.page { flex: 1; background-color: #f3f5f9; }
+	.header { padding: 28px 20px 18px; background-color: #ffffff; }
+	.header-title { font-size: 25px; font-weight: 700; color: #172033; }
+	.status-row { flex-direction: row; align-items: center; margin-top: 10px; }
+	.status-dot { width: 9px; height: 9px; border-radius: 5px; margin-right: 7px; }
+	.status-off { background-color: #9aa3b2; }
+	.status-on { background-color: #21b66f; }
+	.status-text { font-size: 14px; color: #7a8495; }
+	.status-text-on { color: #15935a; }
+	.card { margin: 16px; padding: 18px; border-radius: 12px; background-color: #ffffff; }
+	.label { font-size: 14px; color: #39445a; margin-bottom: 8px; }
+	.label-gap { margin-top: 15px; }
+	.input { height: 46px; padding: 0 13px; border: 1px solid #d9dee8; border-radius: 8px; font-size: 16px; color: #1d2738; background-color: #fafbfc; }
+	.fixed-value { justify-content: center; }
+	.fixed-value-text { font-size: 16px; color: #687386; }
+	.button { height: 46px; line-height: 46px; margin-top: 20px; border-radius: 8px; color: #ffffff; font-size: 16px; }
+	.connect-button { background-color: #3478f6; }
+	.disconnect-button { background-color: #e54b4b; }
+	.log-header { flex-direction: row; justify-content: space-between; align-items: center; margin: 4px 18px 10px; }
+	.log-title { font-size: 16px; font-weight: 600; color: #253047; }
+	.clear { font-size: 14px; color: #3478f6; padding: 5px; }
+	.log-panel { height: 390px; margin: 0 16px 20px; padding: 8px 12px; border-radius: 10px; background-color: #172033; }
+	.log-item { flex-direction: row; padding: 7px 0; border-bottom: 1px solid #29344a; }
+	.log-time { width: 78px; font-size: 11px; color: #77849c; }
+	.log-message { flex: 1; font-size: 12px; color: #d3d9e5; }
+	.log-info { color: #b9c2d1; }
+	.log-success { color: #55d99a; }
+	.log-error { color: #ff7b7b; }
+	.log-ping { color: #75aaff; }
+	.log-pong { color: #ffd275; }
+	.empty { height: 100px; justify-content: center; align-items: center; }
+	.empty-text { color: #6f7b91; font-size: 13px; }
+</style>

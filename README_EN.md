@@ -24,4 +24,4 @@ With source-level maintenance and rapid incident response, NetGuard supports DDo
 
 ## Contact
 
-Telegram: @XNetGuard
+Telegram: [@XNetGuard](http://t.me/XNetGuard)

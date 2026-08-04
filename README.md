@@ -24,4 +24,4 @@
 
 ## 联系方式
 
-Telegram: @XNetGuard
+Telegram: [@XNetGuard](http://t.me/XNetGuard)
